@@ -1,5 +1,5 @@
 # afterlif3-downloader
- Microservice downloader of video/playlist of Youtube using Y2mate API.
+ Microservice downloader of youtube video/playlist using Y2mate API.
 
 * The original package name 'cl.afterlife.downloader' is invalid and this project uses 'cl.afterlife.downloader' instead.
 
