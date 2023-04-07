@@ -1,0 +1,197 @@
+{
+	"info": {
+		"_postman_id": "48593495-a802-4ea8-bcd6-11ac493b44e7",
+		"name": "Afterlife Downloader API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26784985"
+	},
+	"item": [
+		{
+			"name": "Youtube Data API",
+			"item": [
+				{
+					"name": "youtube.googleapis.com/youtube/v3/playlistItems",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "in",
+									"value": "query",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "key",
+									"type": "string"
+								},
+								{
+									"key": "value",
+									"value": "AIzaSyAamXvXNeICUu2pV7B9T_GXpSGa-w1sw-U",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PL-Tb5gKrRWxQh9Q6MiivqQd6YFDdSmWDK&pageToken=EAAaBlBUOkNBVQ&part=snippet",
+							"protocol": "https",
+							"host": [
+								"youtube",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"youtube",
+								"v3",
+								"playlistItems"
+							],
+							"query": [
+								{
+									"key": "playlistId",
+									"value": "PL-Tb5gKrRWxQh9Q6MiivqQd6YFDdSmWDK"
+								},
+								{
+									"key": "pageToken",
+									"value": "EAAaBlBUOkNBVQ"
+								},
+								{
+									"key": "part",
+									"value": "snippet"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "googleapis.com/youtube/v3/search",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "in",
+									"value": "query",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "key",
+									"type": "string"
+								},
+								{
+									"key": "value",
+									"value": "AIzaSyAamXvXNeICUu2pV7B9T_GXpSGa-w1sw-U",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://www.googleapis.com/youtube/v3/search?order=date&part=snippet&channelId=UCyXxDLQwWz2xZYzoWGdZzOg&maxResults=5",
+							"protocol": "https",
+							"host": [
+								"www",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"youtube",
+								"v3",
+								"search"
+							],
+							"query": [
+								{
+									"key": "order",
+									"value": "date"
+								},
+								{
+									"key": "part",
+									"value": "snippet"
+								},
+								{
+									"key": "channelId",
+									"value": "UCyXxDLQwWz2xZYzoWGdZzOg"
+								},
+								{
+									"key": "maxResults",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "youtube-downloader/v1/videos-to-mp3",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "key",
+							"value": "x-api-key",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "query",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": "AIzaSyAamXvXNeICUu2pV7B9T_GXpSGa-w1sw-U",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/youtube-downloader/v1/videos-to-mp3?playlistUrl=https://youtube.com/playlist?list=PL-Tb5gKrRWxR1HwE62PiVpywI_VTdYOPB",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"youtube-downloader",
+						"v1",
+						"videos-to-mp3"
+					],
+					"query": [
+						{
+							"key": "playlistUrl",
+							"value": "https://youtube.com/playlist?list=PL-Tb5gKrRWxR1HwE62PiVpywI_VTdYOPB"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
