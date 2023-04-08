@@ -28,10 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -71,8 +68,8 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             Y2Client y2Client = (Y2Client) this.builderClient.createClient(DownloaderApplicationEnum.Y2MATE_URL.getValueInString(), Y2Client.class);
             YoutubeClient youtubeClient = (YoutubeClient) this.builderClient.createClient(DownloaderApplicationEnum.YOUTUBE_URL.getValueInString(), YoutubeClient.class);
 
-            List<String> playlistItems = new LinkedList<>();
-            List<String> errors = new LinkedList<>();
+            List<String> playlistItems = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
 
             /* Get identifiers of videos */
             if (!playlistUrl.contains(DownloaderApplicationEnum.LIST.getValueInString())) {
@@ -106,9 +103,16 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                 }
 
                 playlistItems.addAll(
-                        StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
+                                StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
                                 .parallel()
-                                .map(item -> item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("resourceId").get("videoId").asText()))
+                                .filter(item -> !playlistItems.contains(item
+                                        .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                        .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                        .get("resourceId").get("videoId").asText())))
+                                .map(item -> item
+                                        .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                        .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                        .get("resourceId").get("videoId").asText()))
                                 .collect(Collectors.toList())
                 );
 
@@ -118,10 +122,9 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
             } while (playlistItemsJsonRs.has(DownloaderApplicationEnum.NEXT_PAGE_TOKEN.getValueInString()));
 
-
             ForkJoinPool forkJoinPool = new ForkJoinPool(30);
 
-            forkJoinPool.submit(() -> playlistItems.parallelStream().distinct().forEach(item -> {
+            forkJoinPool.submit(() -> playlistItems.parallelStream().forEach(item -> {
 
                 try {
 
