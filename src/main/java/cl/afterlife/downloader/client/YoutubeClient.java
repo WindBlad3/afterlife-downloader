@@ -4,6 +4,7 @@
 package cl.afterlife.downloader.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import feign.FeignException;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
@@ -22,6 +23,6 @@ public interface YoutubeClient {
 
     @RequestLine("GET /playlistItems?key={key}&playlistId={playlistId}&pageToken={pageToken}&part=snippet")
     @Headers("Accept: application/json")
-    ResponseEntity<JsonNode> playlistItems(@Param String key, @Param String playlistId, @Param String pageToken);
+    ResponseEntity<JsonNode> playlistItems(@Param String key, @Param String playlistId, @Param String pageToken) throws FeignException;
 
 }

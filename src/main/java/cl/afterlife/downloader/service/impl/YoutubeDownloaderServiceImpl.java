@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -111,7 +112,6 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             for (String item : playlistItems) {
 
                 String itemId = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[1];
-                String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
 
                 /* Get value K of video to download */
                 TraceDto traceGetK = this.getK("https://youtu.be/".concat(itemId), y2Client);
@@ -127,21 +127,7 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                     }
 
                     /* Download */
-                    StringBuilder downloadPathSb = new StringBuilder();
-                    downloadPathSb.append(Paths.get("").toAbsolutePath());
-                    downloadPathSb.append("\\src\\main\\resources\\downloads\\");
-                    downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
-                    downloadPathSb.append("\\");
-                    downloadPathSb.append(itemName);
-                    downloadPathSb.append(".");
-                    downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
-
-                    DownloadClient downloadClient = (DownloadClient) builderClient.createClient(traceGetDlink.getValue(), DownloadClient.class);
-                    byte[] downloadResources = downloadClient.downloadDlink(URLEncoder.encode(traceGetDlink.getValue(), StandardCharsets.UTF_8));
-
-                    FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources);
-
-                    log.info("Downloaded: {}", downloadPathSb);
+                    this.download(traceGetDlink.getValue(), item, errors);
 
                 }
             }
@@ -159,6 +145,32 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
         } catch (Exception ex) {
             return builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    private void download(String dLink, String item, List<String> errors) {
+
+        try {
+
+            String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
+
+            StringBuilder downloadPathSb = new StringBuilder();
+            downloadPathSb.append(Paths.get("").toAbsolutePath());
+            downloadPathSb.append("\\src\\main\\resources\\downloads\\");
+            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
+            downloadPathSb.append("\\");
+            downloadPathSb.append(itemName);
+            downloadPathSb.append(".");
+            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
+
+            DownloadClient downloadClient = (DownloadClient) builderClient.createClient(dLink, DownloadClient.class);
+            ResponseEntity<byte[]> downloadResources = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
+            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources.getBody());
+            log.info("Downloaded: {}", downloadPathSb);
+
+        } catch (FeignException | IOException ex) {
+            errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(String.valueOf(ex)));
         }
 
     }
