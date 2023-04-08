@@ -121,7 +121,7 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
             ForkJoinPool forkJoinPool = new ForkJoinPool(30);
 
-            forkJoinPool.submit(() -> playlistItems.parallelStream().forEach(item -> {
+            forkJoinPool.submit(() -> playlistItems.parallelStream().distinct().forEach(item -> {
 
                 try {
 
