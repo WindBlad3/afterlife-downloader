@@ -116,24 +116,31 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
             forkJoinPool.submit(() -> playlistItems.parallelStream().forEach(item -> {
 
-                String itemId = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[1];
+                try {
 
-                /* Get value K of video to download */
-                TraceDto traceGetK = this.getK("https://youtu.be/".concat(itemId), y2Client);
+                    String itemId = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[1];
 
-                if (!traceGetK.getProcessedCorrectly()) {
-                    errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(traceGetK.getMessage()));
-                } else {
-                    /* Get value DLink of video to download */
-                    TraceDto traceGetDlink = this.getDlink(itemId, traceGetK.getValue(), y2Client);
+                    /* Get value K of video to download */
+                    TraceDto traceGetK = this.getK("https://youtu.be/".concat(itemId), y2Client);
 
-                    if (!traceGetDlink.getProcessedCorrectly()) {
-                        errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(traceGetDlink.getMessage()));
+                    if (!traceGetK.getProcessedCorrectly()) {
+                        errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(traceGetK.getMessage()));
+                    } else {
+                        /* Get value DLink of video to download */
+                        TraceDto traceGetDlink = this.getDlink(itemId, traceGetK.getValue(), y2Client);
+
+                        if (!traceGetDlink.getProcessedCorrectly()) {
+                            errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(traceGetDlink.getMessage()));
+                        }
+
+                        /* Download */
+                        this.download(traceGetDlink.getValue(), item, errors);
                     }
 
-                    /* Download */
-                    this.download(traceGetDlink.getValue(), item, errors);
+                } catch (Exception ex) {
+                    errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(String.valueOf(ex)));
                 }
+
             })).get();
 
             if (!errors.isEmpty()) {
@@ -169,8 +176,8 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
 
             DownloadClient downloadClient = (DownloadClient) builderClient.createClient(dLink, DownloadClient.class);
-            ResponseEntity<byte[]> downloadResources = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
-            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources.getBody());
+            byte[] downloadResources = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
+            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources);
             log.info("Downloaded: {}", downloadPathSb);
 
         } catch (FeignException | IOException ex) {

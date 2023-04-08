@@ -6,7 +6,6 @@ package cl.afterlife.downloader.client;
 import feign.FeignException;
 import feign.RequestLine;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 
 /**
  * DownloadClient
@@ -19,6 +18,6 @@ import org.springframework.http.ResponseEntity;
 public interface DownloadClient {
  
     @RequestLine("GET")
-    ResponseEntity<byte[]> downloadDlink(String url) throws FeignException;
+    byte[] downloadDlink(String url) throws FeignException;
 
 }
