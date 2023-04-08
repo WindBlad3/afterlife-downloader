@@ -1,2 +1,6 @@
 server:
  port: 8080
+
+logging:
+  level:
+    cl.afterlife.downloader.client.builder: INFO

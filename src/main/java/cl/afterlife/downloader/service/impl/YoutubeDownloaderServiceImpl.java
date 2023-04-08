@@ -24,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
@@ -109,7 +111,7 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             for (String item : playlistItems) {
 
                 String itemId = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[1];
-                String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0];
+                String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
 
                 /* Get value K of video to download */
                 TraceDto traceGetK = this.getK("https://youtu.be/".concat(itemId), y2Client);
@@ -135,7 +137,7 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                     downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
 
                     DownloadClient downloadClient = (DownloadClient) builderClient.createClient(traceGetDlink.getValue(), DownloadClient.class);
-                    byte[] downloadResources = downloadClient.downloadDlink(traceGetDlink.getValue());
+                    byte[] downloadResources = downloadClient.downloadDlink(URLEncoder.encode(traceGetDlink.getValue(), StandardCharsets.UTF_8));
 
                     FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources);
 
