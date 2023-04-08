@@ -112,6 +112,10 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                                 .collect(Collectors.toList())
                 );
 
+                if(playlistItems.size() == 5000){
+                    break;
+                }
+
             } while (playlistItemsJsonRs.has(DownloaderApplicationEnum.NEXT_PAGE_TOKEN.getValueInString()));
 
 

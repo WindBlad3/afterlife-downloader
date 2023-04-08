@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 @FeignClient("ytClient")
 public interface YoutubeClient {
 
-    @RequestLine("GET /playlistItems?key={key}&playlistId={playlistId}&pageToken={pageToken}&part=snippet")
+    @RequestLine("GET /playlistItems?key={key}&playlistId={playlistId}&pageToken={pageToken}&part=snippet&maxResults=50")
     @Headers("Accept: application/json")
     ResponseEntity<JsonNode> playlistItems(@Param String key, @Param String playlistId, @Param String pageToken) throws FeignException;
 
