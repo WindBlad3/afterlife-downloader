@@ -41,7 +41,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://youtube.googleapis.com/youtube/v3/playlistItems?pageToken=EAAaFVBUOkVndGlYMGxxYm1KaFVtVlhTUQ&playlistId=RDWL_8ZY89dP4&part=snippet&maxResults=50",
+							"raw": "https://youtube.googleapis.com/youtube/v3/playlistItems?pageToken=EAAaFVBUOkVnczNhVTVpYm1sdVpWVkRTUQ&playlistId=RDWL_8ZY89dP4&part=snippet&maxResults=50",
 							"protocol": "https",
 							"host": [
 								"youtube",
@@ -56,7 +56,7 @@
 							"query": [
 								{
 									"key": "pageToken",
-									"value": "EAAaFVBUOkVndGlYMGxxYm1KaFVtVlhTUQ"
+									"value": "EAAaFVBUOkVnczNhVTVpYm1sdVpWVkRTUQ"
 								},
 								{
 									"key": "playlistId",
@@ -256,11 +256,16 @@
 			]
 		},
 		{
-			"name": "youtube-downloader/v1/videos-to-mp3",
+			"name": "youtube/v1/videos-to-mp3",
 			"request": {
 				"auth": {
 					"type": "apikey",
 					"apikey": [
+						{
+							"key": "value",
+							"value": "AIzaSyAamXvXNeICUu2pV7B9T_GXpSGa-w1sw-U",
+							"type": "string"
+						},
 						{
 							"key": "key",
 							"value": "apiKey",
@@ -269,11 +274,6 @@
 						{
 							"key": "in",
 							"value": "query",
-							"type": "string"
-						},
-						{
-							"key": "value",
-							"value": "AIzaSyAamXvXNeICUu2pV7B9T_GXpSGa-w1sw-U",
 							"type": "string"
 						}
 					]
@@ -288,21 +288,62 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/youtube-downloader/v1/videos-to-mp3?playlistUrl=https://www.youtube.com/watch?v=WL_8ZY89dP4%26list=RDWL_8ZY89dP4",
+					"raw": "http://localhost:8080/youtube/v1/videos-to-mp3?playlistUrl=https://youtube.com/playlist?list=RD1WpCt_tlSsM",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"youtube-downloader",
+						"youtube",
 						"v1",
 						"videos-to-mp3"
 					],
 					"query": [
 						{
 							"key": "playlistUrl",
-							"value": "https://www.youtube.com/watch?v=WL_8ZY89dP4&list=RDWL_8ZY89dP4"
+							"value": "https://youtube.com/playlist?list=RD1WpCt_tlSsM"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "youtube/v1/video-to-mp3",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/youtube/v1/video-to-mp3?videoUrl=https://www.youtube.com/watch?v=1Dwoye8Jpac&videoName=Te lo resumo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"youtube",
+						"v1",
+						"video-to-mp3"
+					],
+					"query": [
+						{
+							"key": "videoUrl",
+							"value": "https://www.youtube.com/watch?v=1Dwoye8Jpac"
+						},
+						{
+							"key": "videoName",
+							"value": "Te lo resumo"
 						}
 					]
 				}
