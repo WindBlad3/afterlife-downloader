@@ -8,14 +8,14 @@ import org.springframework.http.ResponseEntity;
 import java.util.Map;
 
 /**
- * YoutubeDownloaderService
+ * YoutubePlayOneDownloaderService
  *
  * @author Gabriel Rojas
  * @version 1.0
- * @since 2023-04-07
+ * @since 2023-04-08
  */
-public interface YoutubeDownloaderService {
+public interface YoutubePlayOneDownloaderService {
 
-    ResponseEntity<Map<String, Object>> downloadVideosOfPlayListToMp3(String playlistUrl, String apikey);
+    ResponseEntity<Map<String, Object>> downloadVideoToMp3(String videoUrl, String videoName);
 
 }

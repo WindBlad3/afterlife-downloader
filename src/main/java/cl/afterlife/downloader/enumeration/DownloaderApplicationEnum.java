@@ -13,8 +13,7 @@ package cl.afterlife.downloader.enumeration;
  */
 public enum DownloaderApplicationEnum {
 
-    PAGE_INFO("pageInfo"),
-    TOTAL_RESULTS("totalResults"),
+    V("v="),
     LINKS("links"),
     SNIPPET("snippet"),
     MP3128("mp3128"),

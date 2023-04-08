@@ -3,7 +3,8 @@
  */
 package cl.afterlife.downloader.controller;
 
-import cl.afterlife.downloader.service.YoutubeDownloaderService;
+import cl.afterlife.downloader.service.YoutubePlayOneDownloaderService;
+import cl.afterlife.downloader.service.YoutubePlaylistDownloaderService;
 import cl.afterlife.downloader.util.Formatter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,31 @@ import java.util.Map;
 
 @Log4j2
 @RestController
-@RequestMapping("/youtube-downloader/v1")
+@RequestMapping("/youtube/v1")
 public class YoutubeDownloaderController {
 
     @Autowired
-    private YoutubeDownloaderService youtubeDownloaderService;
+    private YoutubePlaylistDownloaderService youtubePlaylistDownloaderService;
+
+    @Autowired
+    private YoutubePlayOneDownloaderService youtubePlayOneDownloaderService;
 
     @Autowired
     private Formatter formatter;
 
     @GetMapping(value = "/videos-to-mp3")
     public ResponseEntity<Map<String, Object>> getVideosToMp3(@RequestParam String playlistUrl, @RequestParam("apiKey") String apikey) {
-        log.info("[GET] url: /youtube-downloader/videos-to-mp3 with playlistUrl: {}", playlistUrl);
-        ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubeDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
-        log.info("[GET] url: /youtube-downloader/videos-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
+        log.info("[GET] url: /youtube/v1/videos-to-mp3 with playlistUrl: {}", playlistUrl);
+        ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlaylistDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
+        log.info("[GET] url: /youtube/videos-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
+        return resultOfDownload;
+    }
+
+    @GetMapping(value = "/video-to-mp3")
+    public ResponseEntity<Map<String, Object>> getVideoToMp3(@RequestParam String videoUrl, @RequestParam String videoName) {
+        log.info("[GET] url: /youtube/v1/video-to-mp3 with videoUrl {} and videoName: {}", videoUrl, videoName);
+        ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlayOneDownloaderService.downloadVideoToMp3(videoUrl, videoName);
+        log.info("[GET] url: /youtube/v1/video-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
         return resultOfDownload;
     }
 

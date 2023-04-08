@@ -10,7 +10,7 @@ import cl.afterlife.downloader.client.builder.BuilderClient;
 import cl.afterlife.downloader.config.Properties;
 import cl.afterlife.downloader.dto.TraceDto;
 import cl.afterlife.downloader.enumeration.DownloaderApplicationEnum;
-import cl.afterlife.downloader.service.YoutubeDownloaderService;
+import cl.afterlife.downloader.service.YoutubePlaylistDownloaderService;
 import cl.afterlife.downloader.util.Builder;
 import cl.afterlife.downloader.util.Formatter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,14 +28,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * YoutubeDownloaderServiceImpl
+ * YoutubePlaylistDownloaderServiceImpl
  *
  * @author Gabriel Rojas
  * @version 1.0
@@ -43,7 +45,7 @@ import java.util.stream.StreamSupport;
  */
 @Log4j2
 @Service
-public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
+public class YoutubePlaylistDownloaderServiceImpl implements YoutubePlaylistDownloaderService {
 
     @Autowired
     private Formatter formatter;
@@ -61,20 +63,20 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
     public ResponseEntity<Map<String, Object>> downloadVideosOfPlayListToMp3(String playlistUrl, String apikey) {
         try {
 
+            Y2Client y2Client = (Y2Client) this.builderClient.createClient(DownloaderApplicationEnum.Y2MATE_URL.getValueInString(), Y2Client.class);
+            YoutubeClient youtubeClient = (YoutubeClient) this.builderClient.createClient(DownloaderApplicationEnum.YOUTUBE_URL.getValueInString(), YoutubeClient.class);
+
             ObjectMapper objectMapper = formatter.getObjectMapper();
 
             ResponseEntity<JsonNode> playlistItemsRs;
             JsonNode playlistItemsJsonRs = objectMapper.createObjectNode();
-
-            Y2Client y2Client = (Y2Client) this.builderClient.createClient(DownloaderApplicationEnum.Y2MATE_URL.getValueInString(), Y2Client.class);
-            YoutubeClient youtubeClient = (YoutubeClient) this.builderClient.createClient(DownloaderApplicationEnum.YOUTUBE_URL.getValueInString(), YoutubeClient.class);
 
             List<String> playlistItems = new ArrayList<>();
             List<String> errors = new ArrayList<>();
 
             /* Get identifiers of videos */
             if (!playlistUrl.contains(DownloaderApplicationEnum.LIST.getValueInString())) {
-                return this.builder.createError("The playlist should have '='.", HttpStatus.PRECONDITION_FAILED);
+                return this.builder.createError("The link of playlist should have 'list='.", HttpStatus.PRECONDITION_FAILED);
             }
 
             String playlistId = playlistUrl.split(DownloaderApplicationEnum.LIST.getValueInString())[1];
@@ -155,13 +157,13 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             })).get();
 
             if (!errors.isEmpty()) {
-                return this.builder.createError(String.format("The playlist was download with errors. [ Total download: %1$s || Total found: %2$s]",
-                        playlistItems.size() - errors.size(), playlistItems.size()),
+                return this.builder.createError(String.format("The playlist was download in MP3 with errors. [ Total download: %1$s || Total found: %2$s]",
+                                playlistItems.size() - errors.size(), playlistItems.size()),
                         errors,
                         HttpStatus.CONFLICT);
             }
 
-            return this.builder.createResponse(String.format("The playlist was download complete. [ Total download: %1$s ]", playlistItems.size()));
+            return this.builder.createResponse(String.format("The playlist was download complete in MP3. [ Total download: %1$s ]", playlistItems.size()));
 
         } catch (Exception ex) {
             return this.builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -176,7 +178,7 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
 
             StringBuilder downloadPathSb = new StringBuilder();
-            downloadPathSb.append(this.properties.getMp3FilesLocation());
+            downloadPathSb.append(this.properties.getYoutubeMp3FilesLocation());
             downloadPathSb.append("\\");
             downloadPathSb.append(itemName);
             downloadPathSb.append(".");

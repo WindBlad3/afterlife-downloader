@@ -20,5 +20,5 @@ import org.springframework.context.annotation.Configuration;
 public class Properties {
 
     @Value("${downloader.youtube.videos-in-mp3.files-location}")
-    private String mp3FilesLocation;
+    private String youtubeMp3FilesLocation;
 }
