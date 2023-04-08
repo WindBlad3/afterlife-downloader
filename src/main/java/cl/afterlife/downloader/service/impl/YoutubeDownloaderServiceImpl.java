@@ -7,6 +7,7 @@ import cl.afterlife.downloader.client.DownloadClient;
 import cl.afterlife.downloader.client.Y2Client;
 import cl.afterlife.downloader.client.YoutubeClient;
 import cl.afterlife.downloader.client.builder.BuilderClient;
+import cl.afterlife.downloader.config.Properties;
 import cl.afterlife.downloader.dto.TraceDto;
 import cl.afterlife.downloader.enumeration.DownloaderApplicationEnum;
 import cl.afterlife.downloader.service.YoutubeDownloaderService;
@@ -27,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +51,9 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
     private Formatter formatter;
 
     @Autowired
+    private Properties properties;
+
+    @Autowired
     private Builder builder;
 
     @Autowired
@@ -65,15 +68,15 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             ResponseEntity<JsonNode> playlistItemsRs;
             JsonNode playlistItemsJsonRs = objectMapper.createObjectNode();
 
-            Y2Client y2Client = (Y2Client) builderClient.createClient(DownloaderApplicationEnum.Y2MATE_URL.getValueInString(), Y2Client.class);
-            YoutubeClient youtubeClient = (YoutubeClient) builderClient.createClient(DownloaderApplicationEnum.YOUTUBE_URL.getValueInString(), YoutubeClient.class);
+            Y2Client y2Client = (Y2Client) this.builderClient.createClient(DownloaderApplicationEnum.Y2MATE_URL.getValueInString(), Y2Client.class);
+            YoutubeClient youtubeClient = (YoutubeClient) this.builderClient.createClient(DownloaderApplicationEnum.YOUTUBE_URL.getValueInString(), YoutubeClient.class);
 
             List<String> playlistItems = new LinkedList<>();
             List<String> errors = new LinkedList<>();
 
             /* Get identifiers of videos */
             if (!playlistUrl.contains(DownloaderApplicationEnum.LIST.getValueInString())) {
-                return builder.createError("The playlist should have '='.", HttpStatus.PRECONDITION_FAILED);
+                return this.builder.createError("The playlist should have '='.", HttpStatus.PRECONDITION_FAILED);
             }
 
             String playlistId = playlistUrl.split(DownloaderApplicationEnum.LIST.getValueInString())[1];
@@ -87,19 +90,19 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                 }
 
                 if (!playlistItemsRs.getStatusCode().is2xxSuccessful()) {
-                    return builder.createError("The status code of youtube playlistItems microservice was: ".concat(playlistItemsRs.getStatusCode().toString()), HttpStatus.valueOf(playlistItemsRs.getStatusCode().value()));
+                    return this.builder.createError("The status code of youtube playlistItems microservice was: ".concat(playlistItemsRs.getStatusCode().toString()), HttpStatus.valueOf(playlistItemsRs.getStatusCode().value()));
                 }
 
                 playlistItemsJsonRs = playlistItemsRs.getBody();
 
                 if (Objects.isNull(playlistItemsJsonRs) || !playlistItemsRs.hasBody()) {
-                    return builder.createError("The response of youtube playlistItems microservice was empty or null", HttpStatus.NO_CONTENT);
+                    return this.builder.createError("The response of youtube playlistItems microservice was empty or null", HttpStatus.NO_CONTENT);
                 }
 
                 ArrayNode playListItemsJsonArrayRs = ((ArrayNode) playlistItemsJsonRs.get("items"));
 
                 if (playListItemsJsonArrayRs.size() == 0) {
-                    return builder.createError("The response of youtube playlistItems microservice was: ".concat(formatter.writeValueAsJsonString(playlistItemsRs.getBody())), HttpStatus.NO_CONTENT);
+                    return this.builder.createError("The response of youtube playlistItems microservice was: ".concat(formatter.writeValueAsJsonString(playlistItemsRs.getBody())), HttpStatus.NO_CONTENT);
                 }
 
                 playlistItems.addAll(
@@ -144,18 +147,18 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             })).get();
 
             if (!errors.isEmpty()) {
-                return builder.createError(String.format("The playlist was download with errors. [ Total download: %1$s || Total found: %2$s]",
+                return this.builder.createError(String.format("The playlist was download with errors. [ Total download: %1$s || Total found: %2$s]",
                                 playlistItems.size() - errors.size(), playlistItemsJsonRs.get(DownloaderApplicationEnum.PAGE_INFO.getValueInString())
                                         .get(DownloaderApplicationEnum.TOTAL_RESULTS.getValueInString())),
                         errors,
                         HttpStatus.CONFLICT);
             }
 
-            return builder.createResponse(String.format("The playlist was download complete. [ Total download: %1$s || Total found: %2$s]",
+            return this.builder.createResponse(String.format("The playlist was download complete. [ Total download: %1$s || Total found: %2$s]",
                     playlistItems.size(), playlistItemsJsonRs.get(DownloaderApplicationEnum.PAGE_INFO.getValueInString()).get(DownloaderApplicationEnum.TOTAL_RESULTS.getValueInString())));
 
         } catch (Exception ex) {
-            return builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
+            return this.builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -167,15 +170,13 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
             String itemName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
 
             StringBuilder downloadPathSb = new StringBuilder();
-            downloadPathSb.append(Paths.get("").toAbsolutePath());
-            downloadPathSb.append("\\src\\main\\resources\\downloads\\");
-            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
+            downloadPathSb.append(this.properties.getMp3FilesLocation());
             downloadPathSb.append("\\");
             downloadPathSb.append(itemName);
             downloadPathSb.append(".");
             downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
 
-            DownloadClient downloadClient = (DownloadClient) builderClient.createClient(dLink, DownloadClient.class);
+            DownloadClient downloadClient = (DownloadClient) this.builderClient.createClient(dLink, DownloadClient.class);
             byte[] downloadResources = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
             FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources);
             log.info("Downloaded: {}", downloadPathSb);

@@ -38,8 +38,8 @@ public class YoutubeDownloaderController {
     @GetMapping(value = "/videos-to-mp3")
     public ResponseEntity<Map<String, Object>> getVideosToMp3(@RequestParam String playlistUrl, @RequestParam("apiKey") String apikey) {
         log.info("[GET] url: /youtube-downloader/videos-to-mp3 with playlistUrl: {}", playlistUrl);
-        ResponseEntity<Map<String, Object>> resultOfDownload = youtubeDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
-        log.info("[GET] url: /youtube-downloader/videos-to-mp3 with response: {}", formatter.writeValueAsJsonString(resultOfDownload.getBody()));
+        ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubeDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
+        log.info("[GET] url: /youtube-downloader/videos-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
         return resultOfDownload;
     }
 
