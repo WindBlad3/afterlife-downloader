@@ -152,14 +152,13 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
             if (!errors.isEmpty()) {
                 return this.builder.createError(String.format("The playlist was download with errors. [ Total download: %1$s || Total found: %2$s]",
-                                playlistItems.size() - errors.size(), playlistItemsJsonRs.get(DownloaderApplicationEnum.PAGE_INFO.getValueInString())
-                                        .get(DownloaderApplicationEnum.TOTAL_RESULTS.getValueInString())),
+                                playlistItems.size() - errors.size(), playlistItems.size()),
                         errors,
                         HttpStatus.CONFLICT);
             }
 
-            return this.builder.createResponse(String.format("The playlist was download complete. [ Total download: %1$s || Total found: %2$s]",
-                    playlistItems.size(), playlistItemsJsonRs.get(DownloaderApplicationEnum.PAGE_INFO.getValueInString()).get(DownloaderApplicationEnum.TOTAL_RESULTS.getValueInString())));
+            return this.builder.createResponse(String.format("The playlist was download complete. [ Total download: %1$s ]",
+                    playlistItems.size()));
 
         } catch (Exception ex) {
             return this.builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
