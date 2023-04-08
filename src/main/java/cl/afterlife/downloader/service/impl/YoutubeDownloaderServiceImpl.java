@@ -30,6 +30,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -102,21 +103,21 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                     return this.builder.createError("The response of youtube playlistItems microservice was: ".concat(formatter.writeValueAsJsonString(playlistItemsRs.getBody())), HttpStatus.NO_CONTENT);
                 }
 
-                playlistItems.addAll(
-                                StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
-                                .parallel()
-                                .filter(item -> !playlistItems.contains(item
-                                        .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
-                                        .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
-                                        .get("resourceId").get("videoId").asText())))
-                                .map(item -> item
-                                        .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
-                                        .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
-                                        .get("resourceId").get("videoId").asText()))
-                                .collect(Collectors.toList())
-                );
+                List<String> withoutDuplicates = StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
+                        .parallel()
+                        .filter(item -> !playlistItems.contains(item
+                                .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                .get("resourceId").get("videoId").asText())))
+                        .map(item -> item
+                                .get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                .get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString())
+                                .get("resourceId").get("videoId").asText()))
+                        .collect(Collectors.toList());
 
-                if (playlistItems.size() == 5000) {
+                playlistItems.addAll(withoutDuplicates);
+
+                if (withoutDuplicates.isEmpty()) {
                     break;
                 }
 
