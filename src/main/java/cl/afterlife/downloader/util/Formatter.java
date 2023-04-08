@@ -24,7 +24,7 @@ public class Formatter {
     private ObjectMapper objectMapper;
 
     @SneakyThrows
-    public String writeValueAsJsonString(Object value){
+    public String writeValueAsJsonString(Object value) {
         return this.objectMapper.writeValueAsString(value);
     }
 

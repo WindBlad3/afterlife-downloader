@@ -16,6 +16,6 @@ import java.util.Map;
  */
 public interface YoutubeDownloaderService {
 
-    ResponseEntity<Map<String,Object>> downloadVideosOfPlayListToMp3(String playlistUrl, String apikey);
+    ResponseEntity<Map<String, Object>> downloadVideosOfPlayListToMp3(String playlistUrl, String apikey);
 
 }

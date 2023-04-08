@@ -29,7 +29,7 @@ public class Builder {
         return ResponseEntity.status(httpStatus).body(Map.of("Error", response));
     }
 
-    public ResponseEntity<Map<String,Object>> createError(String response, List<String> errors, HttpStatus httpStatus) {
+    public ResponseEntity<Map<String, Object>> createError(String response, List<String> errors, HttpStatus httpStatus) {
         LinkedHashMap error = new LinkedHashMap() {{
             put("Error", response);
             put("Details", errors);

@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 /**
  * BuilderClient
  *
- * @author  Gabriel Rojas
+ * @author Gabriel Rojas
  * @version 1.0
- * @since   2023-04-07
+ * @since 2023-04-07
  */
 @Import(FeignClientsConfiguration.class)
 @Component
@@ -26,18 +26,18 @@ public class BuilderClient {
 
     @Autowired
     private Decoder decoder;
-    
+
     @Autowired
     private Encoder encoder;
 
-    public Object createClient(String url, Class<?> type){
+    public Object createClient(String url, Class<?> type) {
         return Feign
-        .builder()
-        .encoder(encoder)
-        .decoder(decoder)
-        .contract(new feign.Contract.Default())
-        .logger(new Slf4jLogger(BuilderClient.class))
-        .logLevel(Logger.Level.FULL)
-        .target(type, url);
+                .builder()
+                .encoder(encoder)
+                .decoder(decoder)
+                .contract(new feign.Contract.Default())
+                .logger(new Slf4jLogger(BuilderClient.class))
+                .logLevel(Logger.Level.FULL)
+                .target(type, url);
     }
 }

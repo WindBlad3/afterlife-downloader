@@ -1,10 +1,10 @@
 server:
- port: 8080
+  port: 8080
 
 downloader:
-    youtube:
-      videos-in-mp3:
-        files-location: ${MP3_FILES_LOCATION:C:\Development\GitHub\afterlife-downloader\src\main\resources\downloads\mp3}
+  youtube:
+    videos-in-mp3:
+      files-location: ${MP3_FILES_LOCATION:C:\Development\GitHub\afterlife-downloader\src\main\resources\downloads\mp3}
 
 logging:
   level:
