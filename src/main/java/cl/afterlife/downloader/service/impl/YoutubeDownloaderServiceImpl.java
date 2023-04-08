@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -101,15 +102,19 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
                     return builder.createError("The response of youtube playlistItems microservice was: ".concat(formatter.writeValueAsJsonString(playlistItemsRs.getBody())), HttpStatus.NO_CONTENT);
                 }
 
-                playlistItems.addAll(StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
-                        .map(item -> item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("title").asText()
-                                .concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("resourceId").get("videoId").asText()))
-                        .collect(Collectors.toList()));
+                playlistItems.addAll(
+                        StreamSupport.stream(playListItemsJsonArrayRs.spliterator(), false)
+                                .parallel()
+                                .map(item -> item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("title").asText().concat(" - videoId:").concat(item.get(DownloaderApplicationEnum.SNIPPET.getValueInString()).get("resourceId").get("videoId").asText()))
+                                .collect(Collectors.toList())
+                );
 
             } while (playlistItemsJsonRs.has(DownloaderApplicationEnum.NEXT_PAGE_TOKEN.getValueInString()));
 
 
-            for (String item : playlistItems) {
+            ForkJoinPool forkJoinPool = new ForkJoinPool(30);
+
+            forkJoinPool.submit(() -> playlistItems.parallelStream().forEach(item -> {
 
                 String itemId = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[1];
 
@@ -128,9 +133,8 @@ public class YoutubeDownloaderServiceImpl implements YoutubeDownloaderService {
 
                     /* Download */
                     this.download(traceGetDlink.getValue(), item, errors);
-
                 }
-            }
+            })).get();
 
             if (!errors.isEmpty()) {
                 return builder.createError(String.format("The playlist was download with errors. [ Total download: %1$s || Total found: %2$s]",
