@@ -41,17 +41,17 @@ public class YoutubeDownloaderController {
 
     @GetMapping(value = "/videos-to-mp3")
     public ResponseEntity<Map<String, Object>> getVideosToMp3(@RequestParam String playlistUrl, @RequestParam("apiKey") String apikey) {
-        log.info("[GET] url: /youtube/v1/videos-to-mp3 with playlistUrl: {}", playlistUrl);
+        log.info("[REST GET] url: /youtube/v1/videos-to-mp3 with playlistUrl: {}", playlistUrl);
         ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlaylistDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
-        log.info("[GET] url: /youtube/videos-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
+        log.info("[END REST GET] url: /youtube/videos-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
         return resultOfDownload;
     }
 
     @GetMapping(value = "/video-to-mp3")
     public ResponseEntity<Map<String, Object>> getVideoToMp3(@RequestParam String videoUrl, @RequestParam String videoName) {
-        log.info("[GET] url: /youtube/v1/video-to-mp3 with videoUrl {} and videoName: {}", videoUrl, videoName);
+        log.info("[REST GET] url: /youtube/v1/video-to-mp3 with videoUrl {} and videoName: {}", videoUrl, videoName);
         ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlayOneDownloaderService.downloadVideoToMp3(videoUrl, videoName);
-        log.info("[GET] url: /youtube/v1/video-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
+        log.info("[END REST GET] url: /youtube/v1/video-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
         return resultOfDownload;
     }
 
