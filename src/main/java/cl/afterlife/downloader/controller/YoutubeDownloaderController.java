@@ -8,6 +8,7 @@ import cl.afterlife.downloader.service.YoutubePlaylistDownloaderService;
 import cl.afterlife.downloader.util.Formatter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,7 @@ public class YoutubeDownloaderController {
     @Autowired
     private Formatter formatter;
 
-    @GetMapping(value = "/videos-to-mp3")
+    @GetMapping(value = "/videos-to-mp3", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getVideosToMp3(@RequestParam String playlistUrl, @RequestParam("apiKey") String apikey) {
         log.info("[REST GET] url: /youtube/v1/videos-to-mp3 with playlistUrl: {}", playlistUrl);
         ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlaylistDownloaderService.downloadVideosOfPlayListToMp3(playlistUrl, apikey);
@@ -47,7 +48,7 @@ public class YoutubeDownloaderController {
         return resultOfDownload;
     }
 
-    @GetMapping(value = "/video-to-mp3")
+    @GetMapping(value = "/video-to-mp3", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getVideoToMp3(@RequestParam String videoUrl, @RequestParam String videoName) {
         log.info("[REST GET] url: /youtube/v1/video-to-mp3 with videoUrl {} and videoName: {}", videoUrl, videoName);
         ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlayOneDownloaderService.downloadVideoToMp3(videoUrl, videoName);
