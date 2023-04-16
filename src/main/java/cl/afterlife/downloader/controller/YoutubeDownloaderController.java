@@ -49,7 +49,7 @@ public class YoutubeDownloaderController {
     }
 
     @GetMapping(value = "/video-to-mp3", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> getVideoToMp3(@RequestParam String videoUrl, @RequestParam String videoName) {
+    public ResponseEntity<Map<String, Object>> getVideoToMp3(@RequestParam String videoUrl, @RequestParam String videoName, @RequestParam("apiKey") String apikey) {
         log.info("[REST GET] url: /youtube/v1/video-to-mp3 with videoUrl {} and videoName: {}", videoUrl, videoName);
         ResponseEntity<Map<String, Object>> resultOfDownload = this.youtubePlayOneDownloaderService.downloadVideoToMp3(videoUrl, videoName);
         log.info("[END REST GET] url: /youtube/v1/video-to-mp3 with response: {}", this.formatter.writeValueAsJsonString(resultOfDownload.getBody()));
