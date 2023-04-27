@@ -10,25 +10,19 @@ import cl.afterlife.downloader.client.builder.BuilderClient;
 import cl.afterlife.downloader.config.Properties;
 import cl.afterlife.downloader.dto.TraceDto;
 import cl.afterlife.downloader.enumeration.DownloaderApplicationEnum;
-import cl.afterlife.downloader.service.Y2DownloaderService;
+import cl.afterlife.downloader.service.DownloaderService;
 import cl.afterlife.downloader.service.YoutubePlaylistDownloaderService;
 import cl.afterlife.downloader.util.Builder;
 import cl.afterlife.downloader.util.Formatter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import feign.FeignException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +40,7 @@ import java.util.stream.StreamSupport;
  */
 @Log4j2
 @Service
-public class YoutubePlaylistDownloaderServiceImpl implements YoutubePlaylistDownloaderService, Y2DownloaderService {
+public class YoutubePlaylistDownloaderServiceImpl implements YoutubePlaylistDownloaderService, DownloaderService {
 
     @Autowired
     private Formatter formatter;
@@ -148,7 +142,8 @@ public class YoutubePlaylistDownloaderServiceImpl implements YoutubePlaylistDown
                         }
 
                         /* Download */
-                        this.download(traceGetDlink.getValue(), item, errors);
+                        DownloadClient downloadClient = (DownloadClient) this.builderClient.createClient(traceGetDlink.getValue(), DownloadClient.class);
+                        this.download(this.properties.getYoutubeMp3FilesLocation(), traceGetDlink.getValue(), item, errors, downloadClient);
                     }
 
                 } catch (Exception ex) {
@@ -171,29 +166,4 @@ public class YoutubePlaylistDownloaderServiceImpl implements YoutubePlaylistDown
         }
 
     }
-
-    private void download(String dLink, String item, List<String> errors) {
-
-        try {
-
-            String videoName = item.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim();
-
-            StringBuilder downloadPathSb = new StringBuilder();
-            downloadPathSb.append(this.properties.getYoutubeMp3FilesLocation());
-            downloadPathSb.append("\\");
-            downloadPathSb.append(videoName);
-            downloadPathSb.append(".");
-            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
-
-            DownloadClient downloadClient = (DownloadClient) this.builderClient.createClient(dLink, DownloadClient.class);
-            byte[] downloadResources = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
-            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResources);
-            log.info("Downloaded: {}", downloadPathSb);
-
-        } catch (FeignException | IOException ex) {
-            errors.add(item.concat(DownloaderApplicationEnum.DETAIL_ERROR.getValueInString()).concat(String.valueOf(ex)));
-        }
-
-    }
-
 }

@@ -3,14 +3,21 @@
  */
 package cl.afterlife.downloader.service;
 
+import cl.afterlife.downloader.client.DownloadClient;
 import cl.afterlife.downloader.client.Y2Client;
 import cl.afterlife.downloader.dto.TraceDto;
 import cl.afterlife.downloader.enumeration.DownloaderApplicationEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 import feign.FeignException;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 import org.springframework.http.ResponseEntity;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,7 +27,7 @@ import java.util.Objects;
  * @version 1.0
  * @since 2023-04-27
  */
-public interface Y2DownloaderService {
+public interface DownloaderService {
     default TraceDto getDlink(String vid, String k, Y2Client y2Client) {
 
         TraceDto traceGetDlink = TraceDto.builder().build();
@@ -125,6 +132,29 @@ public interface Y2DownloaderService {
         return traceGetK;
     }
 
+
+    default void download(String filesLocation, String dLink, String videoName, List<String> errors, DownloadClient downloadClient) {
+        try {
+
+            StringBuilder downloadPathSb = new StringBuilder();
+            downloadPathSb.append(filesLocation);
+            downloadPathSb.append("\\");
+            downloadPathSb.append(videoName.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim());
+            downloadPathSb.append(".");
+            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
+
+            byte[] downloadResource = downloadClient.downloadDlink(URLEncoder.encode(dLink, StandardCharsets.UTF_8));
+            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResource);
+
+            Log4j2Holder.log.info("Downloaded: {}", downloadPathSb);
+
+        } catch (FeignException | IOException ex) {
+            errors.add(String.valueOf(ex));
+        }
+
+    }
+
     @Log4j2
-    final class Log4j2Holder {}
+    final class Log4j2Holder {
+    }
 }

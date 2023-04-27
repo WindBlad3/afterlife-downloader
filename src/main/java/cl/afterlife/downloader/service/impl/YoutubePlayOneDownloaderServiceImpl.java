@@ -9,22 +9,16 @@ import cl.afterlife.downloader.client.builder.BuilderClient;
 import cl.afterlife.downloader.config.Properties;
 import cl.afterlife.downloader.dto.TraceDto;
 import cl.afterlife.downloader.enumeration.DownloaderApplicationEnum;
-import cl.afterlife.downloader.service.Y2DownloaderService;
+import cl.afterlife.downloader.service.DownloaderService;
 import cl.afterlife.downloader.service.YoutubePlayOneDownloaderService;
 import cl.afterlife.downloader.util.Builder;
 import cl.afterlife.downloader.util.Formatter;
-import feign.FeignException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +32,7 @@ import java.util.Map;
  */
 @Log4j2
 @Service
-public class YoutubePlayOneDownloaderServiceImpl implements YoutubePlayOneDownloaderService, Y2DownloaderService {
+public class YoutubePlayOneDownloaderServiceImpl implements YoutubePlayOneDownloaderService, DownloaderService {
 
     @Autowired
     private Formatter formatter;
@@ -83,7 +77,8 @@ public class YoutubePlayOneDownloaderServiceImpl implements YoutubePlayOneDownlo
                     }
 
                     /* Download */
-                    this.download(traceGetDlink.getValue(), videoName, errors);
+                    DownloadClient downloadClient = (DownloadClient) this.builderClient.createClient(traceGetDlink.getValue(), DownloadClient.class);
+                    this.download(this.properties.getYoutubeMp3FilesLocation(), traceGetDlink.getValue(), videoName, errors, downloadClient);
                 }
 
             } catch (Exception ex) {
@@ -101,31 +96,6 @@ public class YoutubePlayOneDownloaderServiceImpl implements YoutubePlayOneDownlo
 
         } catch (Exception ex) {
             return this.builder.createError(String.valueOf(ex), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    private void download(String dLink, String videoName, List<String> errors) {
-
-        try {
-
-            String dLinkCleaned = dLink.trim();
-
-            StringBuilder downloadPathSb = new StringBuilder();
-            downloadPathSb.append(this.properties.getYoutubeMp3FilesLocation());
-            downloadPathSb.append("\\");
-            downloadPathSb.append(videoName);
-            downloadPathSb.append(".");
-            downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
-
-            DownloadClient downloadClient = (DownloadClient) this.builderClient.createClient(dLinkCleaned, DownloadClient.class);
-            byte[] downloadResource = downloadClient.downloadDlink(URLEncoder.encode(dLinkCleaned, StandardCharsets.UTF_8));
-            FileUtils.writeByteArrayToFile(new File(downloadPathSb.toString()), downloadResource);
-
-            log.info("Downloaded: {}", downloadPathSb);
-
-        } catch (FeignException | IOException ex) {
-            errors.add(String.valueOf(ex));
         }
 
     }
