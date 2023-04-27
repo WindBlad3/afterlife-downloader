@@ -139,7 +139,7 @@ public interface DownloaderService {
             StringBuilder downloadPathSb = new StringBuilder();
             downloadPathSb.append(filesLocation);
             downloadPathSb.append("\\");
-            downloadPathSb.append(videoName.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "").trim());
+            downloadPathSb.append(videoName.split(DownloaderApplicationEnum.VIDEO_ID.getValueInString())[0].replaceAll("[^a-zA-Z0-9]", "_").trim());
             downloadPathSb.append(".");
             downloadPathSb.append(DownloaderApplicationEnum.MP3.getValueInString());
 
