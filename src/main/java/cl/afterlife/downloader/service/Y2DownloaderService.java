@@ -1,5 +1,7 @@
+/**
+ * © 2023 Afterlife. Todos los derechos reservados
+ */
 package cl.afterlife.downloader.service;
-
 
 import cl.afterlife.downloader.client.Y2Client;
 import cl.afterlife.downloader.dto.TraceDto;
